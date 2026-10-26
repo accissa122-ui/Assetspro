@@ -1064,8 +1064,8 @@ const bumpP=n=>bumpCtr({ord:n,og:n,tr:n,dc:n});
 function bumpCtr(p){let ch=0;for(const k in p)if(p[k]>CTR[k]){CTR[k]=p[k];ch=1}
  if(ch&&window.FBC&&!window.FB_OFF)try{Promise.resolve(FBC('meta').doc('counters').set({code:CTR.code,ord:CTR.ord,og:CTR.og,tr:CTR.tr,dc:CTR.dc,sn:CTR.sn||0})).catch(()=>{})}catch(e){}}
 let NF=null,NSEEN=new Set(),ncol=null;
-const UDENY_RO=new Set(['ra','rinc','rdec','rall','del','bkdel','unas','bkst','new','addr','assign','rimp','imp','addg','gadd','gren','gdel','addc','cadd','iren','icode','idel','cren','cdel','addrooms','newr','wipe','snfill']);
-const UDENY=new Set(['rimp','imp','addg','gadd','gren','gdel','addc','cadd','iren','icode','idel','cren','cdel','wipe','snfill']);
+const UDENY_RO=new Set(['ra','rinc','rdec','rall','del','bkdel','unas','bkst','new','addr','assign','rimp','imp','addg','gadd','gren','gdel','addc','cadd','iren','icode','idel','cren','cdel','addrooms','newr','wipe','snfill','oclr','svd','svda']);
+const UDENY=new Set(['rimp','imp','addg','gadd','gren','gdel','addc','cadd','iren','icode','idel','cren','cdel','wipe','snfill','oclr','svd','svda']);
 function isU(){return !!(cu&&cu.r=='user'&&!(window.VIEWAS&&window.VIEWAS.edit))}
 
 const NFm=()=>(NF||[]).filter(n=>n.to==(cu&&cu.u)||(n.to=='admin'&&cu&&cu.r=='admin')||(n.to=='purchasing'&&cu&&cu.r=='purchasing')||(n.to=='maintenance'&&cu&&cu.r=='maintenance')).sort((x,y)=>x.at<y.at?1:-1);
@@ -1508,7 +1508,7 @@ function irShow(g,n){
 }
 function printItemRooms(g,n){
  const D=irData(g,n),T=D.reduce((s,x)=>s+x.n,0),c=itemCode(g,n),p=$('#pr');
- p.innerHTML=`<div class="np"><button class="p" data-x="doprint">🖨 طباعة</button><button data-x="clp">إغلاق</button></div><div class="pg"><div class="ph"><img src="${LOCKUP}" alt="SRNTY"><div><small>توزيع الصنف على الغرف</small><b>${esc(n)}${c?' · '+esc(c):''}</b></div></div><div class="pb"><div class="st"><div>التاريخ<b>${fmt(new Date())}</b></div><div>عدد المواقع<b>${D.length}</b></div><div>إجمالي القطع<b>${T}</b></div></div><table><tr><th class="m">م<th>الغرفة<th class="c">العدد<th>الأكواد</tr>${D.map((x,i)=>`<tr><td class="m">${i+1}<td>${esc(x.r)}<td class="c">${x.n}<td>${x.codes.map(esc).join('، ')}</tr>`).join('')}<tr class="tt"><th><th>الإجمالي<th class="c">${T}<th></tr></table><div class="sg"><div>المسؤول</div><div>المراجع</div><div>التوقيع</div></div></div><div class="ft">مجموعة فنادق سيرينتي · إدارة الأصول الثابتة</div></div>`;
+ p.innerHTML=`<div class="np"><button class="p" data-x="doprint">🖨 طباعة</button><button data-x="clp">إغلاق</button></div><div class="pg"><div class="ph"><img src="${LOCKUP}" alt="SRNTY"><span class="hn">Sahl Hasheesh</span><div><small>توزيع الصنف على الغرف</small><b>${esc(n)}${c?' · '+esc(c):''}</b></div></div><div class="pb"><div class="st"><div>التاريخ<b>${fmt(new Date())}</b></div><div>عدد المواقع<b>${D.length}</b></div><div>إجمالي القطع<b>${T}</b></div></div><table><tr><th class="m">م<th>الغرفة<th class="c">العدد<th>الأكواد</tr>${D.map((x,i)=>`<tr><td class="m">${i+1}<td>${esc(x.r)}<td class="c">${x.n}<td>${x.codes.map(esc).join('، ')}</tr>`).join('')}<tr class="tt"><th><th>الإجمالي<th class="c">${T}<th></tr></table><div class="sg"><div>المسؤول</div><div>المراجع</div><div>التوقيع</div></div></div><div class="ft">مجموعة فنادق سيرينتي · إدارة الأصول الثابتة</div></div>`;
  p.classList.add('on');p.scrollTop=0;setTimeout(()=>{try{window.print()}catch(e){}},250)
 }
 async function addItems(g,L){
@@ -1549,11 +1549,11 @@ const lg=(a,x)=>{a.log=[{t:new Date().toISOString(),x},...(a.log||[])].slice(0,4
 function ask(t,fs,ok,danger,html){
  const d=$('#d');d.style.width='';d.onkeydown=null;
  const fl=fs.map((f,i)=>{const at=` class="lb${f.hf?' hf':''}"${f.o?` style="order:${f.o}"`:''}`,rq=f.r?' required':'',h=f.h?`<small class="h">${f.h}</small>`:'',pv=f.pv?`<div class="pvw" id="pv${i}" style="order:${(f.o||0)+1}"></div>`:'';
-  return(f.ta?`<label${at}>${f.l}<textarea name="f${i}" rows="3"${rq}>${esc(f.v||'')}</textarea>${h}</label>`
-  :f.n?`<div${at}>${f.l}<div class="stp"><button type="button" data-st="-1">−</button><input name="f${i}" inputmode="numeric" value="${esc(f.v||'')}"${rq}><button type="button" data-st="1">+</button></div>${h}</div>`
+  return(f.ta?`<label${at}>${f.l}<textarea name="f${i}" rows="3" autocomplete="off"${rq}>${esc(f.v||'')}</textarea>${h}</label>`
+  :f.n?`<div${at}>${f.l}<div class="stp"><button type="button" data-st="-1">−</button><input name="f${i}" autocomplete="off" inputmode="numeric" value="${esc(f.v||'')}"${rq}><button type="button" data-st="1">+</button></div>${h}</div>`
   :f.sel?`<label${at}>${f.l}<select name="f${i}"${rq}><option value="">اختر…</option>${f.sel.map(o=>`<option value="${esc(o)}"${f.v==o?' selected':''}>${esc(o)}</option>`).join('')}</select>${h}</label>`
-  :`<label${at}>${f.l}<input type="${f.t||'text'}" name="f${i}" value="${esc(f.v||'')}"${f.dl?` list="${f.dl}"`:''}${f.dg?' inputmode="numeric" data-dg="1"':''}${rq}>${h}</label>`)+pv}).join('');
- d.innerHTML=`<form method="dialog"><h3>${t}</h3>${html||''}<div class="fg">${fl}</div><div class="bt">${ok?`<button class="${danger?'x':'p'}" value="ok">تأكيد</button><button value="no" formnovalidate>إلغاء</button>`:'<button value="no">إغلاق</button>'}</div></form>`;
+  :`<label${at}>${f.l}<input type="${f.t||'text'}" name="f${i}" autocomplete="off" value="${esc(f.v||'')}"${f.dl?` list="${f.dl}"`:''}${f.dg?' inputmode="numeric" data-dg="1"':''}${rq}>${h}</label>`)+pv}).join('');
+ d.innerHTML=`<form method="dialog" autocomplete="off"><h3>${t}</h3>${html||''}<div class="fg">${fl}</div><div class="bt">${ok?`<button class="${danger?'x':'p'}" value="ok">تأكيد</button><button value="no" formnovalidate>إلغاء</button>`:'<button value="no">إغلاق</button>'}</div></form>`;
  d.onclose=()=>{if(d.returnValue=='ok'&&ok)ok([...d.querySelectorAll('input,select,textarea')].map(e=>e.value.trim()));d.returnValue=''};
  d.querySelectorAll('input[data-dg]').forEach(e=>e.addEventListener('input',()=>{const t=nDg(e.value);if(t!==e.value)e.value=t}));fs.forEach((f,i)=>{if(f.pv){const n=d.querySelector('[name=f'+i+']'),b=d.querySelector('#pv'+i),u=()=>{b.innerHTML=f.pv(n.value)};n.addEventListener('input',u);u()}});
  d.showModal()
@@ -1776,7 +1776,7 @@ function mntOrder0(L,why){
 const ordItems=(no,L)=>(L||A).map(a=>({a,r:ordsOf(a).find(r=>r.no==no)})).filter(x=>x.r).sort((x,y)=>nat(x.a.code,y.a.code)),
  dEn=t=>new Date(t).toLocaleDateString('en-GB'),
  pf=(k,v,w)=>`<div${w?' class="w"':''}>${k}<b dir="auto">${esc(v)||'—'}</b></div>`,
- phd=(t,no)=>`<div class="ph"><img src="${LOCKUP}" alt="SRNTY"><div><small>${t}</small><b>${esc(no)}</b></div></div>`,
+ phd=(t,no)=>`<div class="ph"><img src="${LOCKUP}" alt="SRNTY"><span class="hn">Sahl Hasheesh</span><div><small>${t}</small><b>${esc(no)}</b></div></div>`,
  pft='<div class="ft">SRNTY Hotels Group · Fixed Assets Management</div>',
  pbar='<div class="np"><button class="p" data-x="doprint">🖨 طباعة</button><button data-x="clp">إغلاق</button></div>';
 function printOrder(no,L){
@@ -1815,7 +1815,7 @@ function ordRes(){
  st=x=>x.r.rep?`<span class="g o">تمت الصيانة</span> ${fmt(x.r.rep.at)}${x.r.rep.to?' ← '+esc(x.r.rep.to):''}`:(x.r.part?`<span class="g w">جزء خارج: ${esc(x.r.part)}</span>`:x.a.mnt&&((mainOrds(x.a).slice(-1)[0]||{}).no==no)?`<span class="g w">في الصيانة</span>${x.a.workshop?' · '+esc(x.a.workshop):' · بانتظار التوجيه'}`:'—');
  return`<div class="rm"><h4>إذن رقم ${esc(no)}<small>${fmt(o.date)}</small></h4><p class="s">إلى: ${esc(o.dest)||'—'} · المستلم: ${esc(o.rcv)||'—'} · السبب: ${esc(o.reason)||'—'}${o.notes?' · ملاحظات: '+esc(o.notes):''}</p>${OT=='out'?purLine(no):''}<div class="sc"><table><tr><th>الكود<th>الأصل<th>الحالة<th>تقرير الصيانة</tr>${L.map(x=>`<tr><td>${esc(x.a.code)}<td>${esc(x.r.part||x.a.name)}<td>${st(x)}<td>${x.r.rep?esc(x.r.rep.t)+`<br><small class="s">${esc(x.r.rep.by||'')}</small>`:'—'}</tr>`).join('')}</table></div><div class="bar" style="margin-top:10px">${bt('ordp',esc(no),'🖨 طباعة الإذن','p')}${adm&&done?bt('repp',esc(no),'🖨 طباعة تقرير الصيانة'):''}</div></div>`
 }
-function vO(){const T=[['in','إذونات الصيانة الداخلية'],['out','OUT GOING'],['tr','النقل (Transfer)'],['dc','التكهين (Decommissioning)']];return`<div class="bar">${T.map(([k,l])=>`<button data-x="otype" data-i="${k}"${OT==k?' class="p"':''}>${l}</button>`).join('')}${cu&&cu.r=='admin'?'<button class="r" data-x="ocan" style="margin-inline-start:auto">↩ Undo</button>':''}</div><div class="bar"><input id="oq" inputmode="numeric" placeholder="${OT=='in'?'رقم إذن الصيانة (أرقام فقط)':OT=='out'?'رقم أوردر OUT GOING (أرقام فقط)':OT=='dc'?'رقم أوردر التكهين (أرقام فقط)':'رقم أوردر النقل (أرقام فقط)'}" value="${esc(OQ)}"></div><div id="ores">${ordRes()}</div>`}
+function vO(){const T=[['in','إذونات الصيانة الداخلية'],['out','OUT GOING'],['tr','النقل (Transfer)'],['dc','التكهين (Decommissioning)']];return`<div class="bar">${T.map(([k,l])=>`<button data-x="otype" data-i="${k}"${OT==k?' class="p"':''}>${l}</button>`).join('')}${cu&&cu.r=='admin'?'<button class="r" data-x="ocan" style="margin-inline-start:auto">↩ Undo</button><button class="r" data-x="oclr">🗑 حذف كل الأوردرات</button>':''}</div><div class="bar"><input id="oq" inputmode="numeric" placeholder="${OT=='in'?'رقم إذن الصيانة (أرقام فقط)':OT=='out'?'رقم أوردر OUT GOING (أرقام فقط)':OT=='dc'?'رقم أوردر التكهين (أرقام فقط)':'رقم أوردر النقل (أرقام فقط)'}" value="${esc(OQ)}"></div><div id="ores">${ordRes()}</div>`}
 const back=a=>fin([a]);
 const histo=a=>ask('سجل «'+esc(a.name)+'»',[],null,0,`${a.mcost?`<p class="s">إجمالي تكلفة الصيانة على الأصل: <b>${money(a.mcost)}</b></p>`:''}${partTag(a)}<ul class="h">${(a.log||[]).map(l=>`<li><b>${fmt(l.t)}</b> — ${esc(l.x)}</li>`).join('')||'<li>لا يوجد سجل</li>'}</ul>`);
 const delA=a=>ask('حذف الأصل',[],()=>rm(a.id),1,`<p>هل تريد حذف «${esc(a.name)}» نهائيًا؟</p>`);
@@ -1982,7 +1982,7 @@ function stmTable(v,P){
  return`<table><tr>${H.map(h=>`<th>${h}`).join('')}</tr>${v.rows.map(r=>`<tr><td>${fmt(r.t)}<td>${esc(r.no)}<td>${stmDescH(r)}${P?`<td>${money(r.c)}`:`<td>${r.cr?'<span class="g w">آجل</span>':'<span class="g o">نقدًا</span>'}<td>${money(r.c)}<td>${r.cr?'—':money(r.c)}<td>${r.cr?money(r.c):'—'}`}<td><b>${money(r.bal)}</b></tr>`).join('')}<tr class="tt"><th colspan="${P?3:4}">الإجمالي${P?`<th>${money(v.credit)}`:`<th>${money(v.total)}<th>${money(v.cash)}<th>${money(v.credit)}`}<th>${money(v.credit)}</tr></table>`
 }
 function vStm(v,P){
- const hd=`<div class="bar">${bt('svb','','→ كل الموردين')}<h2>${esc(SV==null?'':vk(SV))} <small class="s">· كشف حساب</small></h2>${v?bt('svp','','🖨 طباعة','p')+bt('svx','','⬇ Excel'):''}</div>`;
+ const hd=`<div class="bar">${bt('svb','','→ كل الموردين')}<h2>${esc(SV==null?'':vk(SV))} <small class="s">· كشف حساب</small></h2>${v?bt('svp','','🖨 طباعة','p')+bt('svx','','⬇ Excel'):''}${v&&cu&&cu.r=='admin'?bt('svd','','🗑 حذف حساب المورد','r'):''}</div>`;
  if(!v)return hd+'<div class="em">لا توجد معاملات لهذا المورد</div>';
  return hd+`<div class="k"><div><b>${v.rows.length}</b>معاملة</div>${P?'':`<div><b>${money(v.total)}</b>إجمالي المعاملات</div><div><b>${money(v.cash)}</b>مدفوع نقدًا</div>`}<div class="w"><b>${money(v.credit)}</b>المستحق للمورد</div></div><div class="sc">${stmTable(v,P)}</div>`
 }
@@ -1990,12 +1990,60 @@ function vAcc(){
  const P=isPur(),V=vData(P?'credit':'all');
  if(SV!=null)return vStm(V.find(y=>y.name==vk(SV)),P);
  const tc=V.reduce((s,v)=>s+v.credit,0),tt=V.reduce((s,v)=>s+v.total,0);
- return`<div class="k"><div><b>${V.length}</b>${P?'مورد له مستحقات':'مورد'}</div>${P?'':`<div><b>${money(tt)}</b>إجمالي المعاملات</div>`}<div class="w"><b>${money(tc)}</b>آجل مستحق</div></div>`+
- (V.length?`<div class="sc"><table><tr><th>المورد<th>${P?'عدد المعاملات الآجلة':'عدد المعاملات'}${P?'':'<th>الإجمالي<th>مدفوع نقدًا'}<th>${P?'المستحق':'آجل مستحق'}<th></tr>${V.map(v=>`<tr><td>${esc(v.name)}<td>${v.rows.length}${P?'':`<td>${money(v.total)}<td>${money(v.cash)}`}<td><b${v.credit>0?' style="color:var(--wn)"':''}>${money(v.credit)}</b><td class="ac">${bt('sv',esc(v.name),'كشف الحساب','p')}</tr>`).join('')}</table></div>`:`<div class="em">${P?'لا توجد مبالغ آجلة مستحقة للموردين':'لا توجد معاملات موردين بعد'}</div>`)
+ return(cu&&cu.r=='admin'&&V.length?`<div class="bar">${bt('svda','','🗑 حذف كل حسابات الموردين','r')}</div>`:'')+`<div class="k"><div><b>${V.length}</b>${P?'مورد له مستحقات':'مورد'}</div>${P?'':`<div><b>${money(tt)}</b>إجمالي المعاملات</div>`}<div class="w"><b>${money(tc)}</b>آجل مستحق</div></div>`+
+ (V.length?`<div class="sc"><table><tr><th>المورد<th>${P?'عدد المعاملات الآجلة':'عدد المعاملات'}${P?'':'<th>الإجمالي<th>مدفوع نقدًا'}<th>${P?'المستحق':'آجل مستحق'}<th></tr>${V.map(v=>`<tr><td>${esc(v.name)}<td>${v.rows.length}${P?'':`<td>${money(v.total)}<td>${money(v.cash)}`}<td><b${v.credit>0?' style="color:var(--wn)"':''}>${money(v.credit)}</b><td class="ac">${bt('sv',esc(v.name),'كشف الحساب','p')}${cu&&cu.r=='admin'?bt('svd',esc(v.name),'🗑 حذف','r'):''}</tr>`).join('')}</table></div>`:`<div class="em">${P?'لا توجد مبالغ آجلة مستحقة للموردين':'لا توجد معاملات موردين بعد'}</div>`)
+}
+function vendorWipe(k){
+ const T=[];
+ outOrders().forEach(x=>x.items.forEach(i=>{const p=i.r.pur;if(p&&p.st=='back'&&+p.cost>0&&(k==null||vk(p.vendor)==k))T.push({x,i,p})}));
+ T.forEach(({x,i,p})=>{const n=p.n||x.items.length,sh=Math.round((+p.cost||0)/n*100)/100,vn=vk(p.vendor);
+  i.a.mcost=Math.max(0,Math.round(((+i.a.mcost||0)-sh)*100)/100);
+  lg(i.a,'حُذف حساب المورد «'+vn+'» — صُفّرت تكلفة أوردر '+x.no+' ('+money(p.cost)+')');
+  i.r.pur={...p,cost:0,pay:'cash',vendor:'',delVendor:vn,delCost:p.cost}});
+ return T
+}
+function delVendor(name){
+ if(!cu||cu.r!='admin')return note('حذف حساب المورد للمدير فقط');
+ const k=vk(name),v=vData('all').find(y=>y.name==k);if(!v)return note('لا توجد معاملات لهذا المورد');
+ ask('حذف حساب المورد «'+esc(k)+'»',[{l:'للتأكيد اكتب اسم المورد',r:1,h:'اكتب «'+esc(k)+'» بالضبط'}],val=>{
+  if(vk(val[0])!=k)return note('الاسم غير مطابق — لم يتم الحذف');
+  const T=vendorWipe(k);
+  putMany([...new Set(T.map(t=>t.i.a))]);SV=null;draw();note('تم حذف حساب المورد '+k);
+  toAdmin('🗑 حُذف حساب المورد «'+k+'» ('+v.rows.length+' معاملة) — بواسطة '+cu.u)
+ },1,`<p>سيتم حذف ${v.rows.length} معاملة بإجمالي ${money(v.total)} (آجل ${money(v.credit)}) من حسابات الموردين وقيود اليومية وتكلفة الصيانة على الأصول. لا يمكن التراجع.</p>`)
+}
+function delAllVendors(){
+ if(!cu||cu.r!='admin')return note('حذف حسابات الموردين للمدير فقط');
+ const V=vData('all');if(!V.length)return note('لا توجد حسابات موردين لحذفها');
+ const rows=V.reduce((s,v)=>s+v.rows.length,0),tot=V.reduce((s,v)=>s+v.total,0),cr=V.reduce((s,v)=>s+v.credit,0);
+ ask('🗑 حذف كل حسابات الموردين',[{l:'للتأكيد اكتب كلمة: حذف',r:1}],val=>{
+  if(val[0].trim()!='حذف')return note('لم يتم الحذف — الكلمة غير مطابقة');
+  const T=vendorWipe(null);
+  putMany([...new Set(T.map(t=>t.i.a))]);SV=null;draw();note('تم حذف كل حسابات الموردين ('+V.length+' مورد)');
+  toAdmin('🗑 حُذفت كل حسابات الموردين ('+V.length+' مورد، '+rows+' معاملة) — بواسطة '+cu.u)
+ },1,`<p>سيتم حذف حسابات <b>${V.length}</b> مورد (${rows} معاملة، إجمالي ${money(tot)}، آجل ${money(cr)}) وقيود اليومية وتكلفة الصيانة المسجلة على الأصول.</p><p class="s">أوردرات الصيانة نفسها تبقى كما هي. لا يمكن التراجع.</p>`)
+}
+async function wipeOrders(){
+ if(!cu||cu.r!='admin')return note('حذف الأوردرات للمدير فقط');
+ const T=ALLA().filter(a=>ordsOf(a).length||(a.trs&&a.trs.length)||(a.dcs&&a.dcs.length)||a.mcost);
+ let io=0,it=0,id=0,mt=0,dc=0;T.forEach(a=>{io+=ordsOf(a).length;it+=(a.trs||[]).length;id+=(a.dcs||[]).length;if(a.mnt)mt++;if(a.dec)dc++});
+ if(!io&&!it&&!id)return note('لا توجد أوردرات لحذفها');
+ ask('🗑 حذف كل الأوردرات',[{l:'للتأكيد اكتب كلمة: حذف',r:1}],val=>setTimeout(async()=>{
+  if(val[0].trim()!='حذف')return note('لم يتم الحذف — الكلمة غير مطابقة');
+  T.forEach(a=>{delete a.ords;delete a.ord;delete a.trs;delete a.dcs;
+   if(a.mnt)Object.assign(a,{mnt:false,room:a.from||'',reason:'',workshop:'',from:'',since:''});
+   if(a.dec){delete a.dec;delete a.decAt}
+   a.mcost=0;lg(a,'حُذفت كل الأوردرات (إعادة ضبط)')});
+  await putMany(T);
+  CTR.ord=CTR.og=CTR.tr=CTR.dc=0;
+  if(window.FBC&&!window.FB_OFF)try{Promise.resolve(FBC('meta').doc('counters').set({code:CTR.code,ord:0,og:0,tr:0,dc:0,sn:CTR.sn||0})).catch(()=>{})}catch(e){}
+  note('تم حذف كل الأوردرات — الترقيم يبدأ من 1',5000);
+  toAdmin('🗑 حُذفت كل الأوردرات ('+(io+it+id)+' سجل) — بواسطة '+cu.u);draw()
+ },0),1,`<p>سيتم حذف: <b>${io}</b> إذن صيانة (داخلي وخارجي) · <b>${it}</b> أوردر نقل · <b>${id}</b> أوردر تكهين.</p><ul class="h"><li>${mt} أصل في الصيانة يرجع لمكانه الأصلي</li><li>${dc} أصل مُكهَّن يرجع للجرد</li><li>تكلفة الصيانة على الأصول تُصفَّر، وترقيم الأوردرات يبدأ من 1</li><li>حسابات الموردين تختفي لأنها مبنية على الأوردرات</li></ul><p class="s">أماكن الأصول الحالية (بعد النقل) لا تتغير. لا يمكن التراجع.</p>`)
 }
 function printStm(){
  const P=isPur(),v=curStm();if(!v)return note('لا توجد معاملات');const p=$('#pr');
- p.innerHTML=`<div class="np"><button class="p" data-x="doprint">🖨 طباعة</button><button data-x="clp">إغلاق</button></div><div class="pg"><div class="ph"><img src="${LOCKUP}" alt="SRNTY"><div><small>كشف حساب مورد</small><b>${esc(v.name)}</b></div></div><div class="pb"><div class="st"><div>التاريخ<b>${fmt(new Date())}</b></div><div>عدد المعاملات<b>${v.rows.length}</b></div>${P?'':`<div>إجمالي المعاملات<b>${money(v.total)}</b></div>`}<div>المستحق للمورد<b>${money(v.credit)}</b></div></div>${stmTable(v,P)}<div class="sg"><div>المحاسب</div><div>المراجع</div><div>المدير المالي</div></div></div><div class="ft">مجموعة فنادق سيرينتي · الإدارة المالية</div></div>`;
+ p.innerHTML=`<div class="np"><button class="p" data-x="doprint">🖨 طباعة</button><button data-x="clp">إغلاق</button></div><div class="pg"><div class="ph"><img src="${LOCKUP}" alt="SRNTY"><span class="hn">Sahl Hasheesh</span><div><small>كشف حساب مورد</small><b>${esc(v.name)}</b></div></div><div class="pb"><div class="st"><div>التاريخ<b>${fmt(new Date())}</b></div><div>عدد المعاملات<b>${v.rows.length}</b></div>${P?'':`<div>إجمالي المعاملات<b>${money(v.total)}</b></div>`}<div>المستحق للمورد<b>${money(v.credit)}</b></div></div>${stmTable(v,P)}<div class="sg"><div>المحاسب</div><div>المراجع</div><div>المدير المالي</div></div></div><div class="ft">مجموعة فنادق سيرينتي · الإدارة المالية</div></div>`;
  p.classList.add('on');p.scrollTop=0
 }
 function stmExport(){
@@ -2192,7 +2240,7 @@ document.addEventListener('click',e=>{
  if(x=='print'){
   const L=A.filter(y=>!y.mnt&&y.room==sel);if(!L.length)return note('الغرفة فارغة');
   const g=grp(L),ks=Object.keys(g).sort(nat),p=$('#pr');
-  p.innerHTML=`<div class="np"><button class="p" data-x="doprint">🖨 طباعة</button><button data-x="clp">إغلاق</button></div><div class="pg"><div class="ph"><img src="${LOCKUP}" alt="SRNTY"><div><small>جرد محتويات الغرفة</small><b>${esc(sel)}</b></div></div><div class="pb"><div class="st"><div>التاريخ<b>${fmt(new Date())}</b></div><div>عدد الأصناف<b>${ks.length}</b></div><div>إجمالي القطع<b>${L.length}</b></div></div><table><tr><th class="m">م<th>الصنف<th class="c">العدد</tr>${ks.map((k,i)=>`<tr><td class="m">${i+1}<td>${esc(k)}<td class="c">${g[k].n}</tr>`).join('')}<tr class="tt"><th><th>الإجمالي<th class="c">${L.length}</tr></table><div class="sg"><div>المسؤول</div><div>المراجع</div><div>التوقيع</div></div></div><div class="ft">مجموعة فنادق سيرينتي · إدارة الأصول الثابتة</div></div>`;
+  p.innerHTML=`<div class="np"><button class="p" data-x="doprint">🖨 طباعة</button><button data-x="clp">إغلاق</button></div><div class="pg"><div class="ph"><img src="${LOCKUP}" alt="SRNTY"><span class="hn">Sahl Hasheesh</span><div><small>جرد محتويات الغرفة</small><b>${esc(sel)}</b></div></div><div class="pb"><div class="st"><div>التاريخ<b>${fmt(new Date())}</b></div><div>عدد الأصناف<b>${ks.length}</b></div><div>إجمالي القطع<b>${L.length}</b></div></div><table><tr><th class="m">م<th>الصنف<th class="c">العدد</tr>${ks.map((k,i)=>`<tr><td class="m">${i+1}<td>${esc(k)}<td class="c">${g[k].n}</tr>`).join('')}<tr class="tt"><th><th>الإجمالي<th class="c">${L.length}</tr></table><div class="sg"><div>المسؤول</div><div>المراجع</div><div>التوقيع</div></div></div><div class="ft">مجموعة فنادق سيرينتي · إدارة الأصول الثابتة</div></div>`;
   p.classList.add('on');p.scrollTop=0;setTimeout(()=>{try{window.print()}catch(e){}},250);return
  }
  if(x=='xl')return rexp(sel);
@@ -2218,7 +2266,7 @@ document.addEventListener('click',e=>{
  if(x=='rgo'){RS=b.dataset.i;return draw()}
  if(x=='rgb'){RS=null;return draw()}
  if(x=='repp')return printReport(b.dataset.i);
- if(x=='part')return partOrder(a);if(x=='pcan'){const q=String(b.dataset.i).split('§');return partCancel(q[0],q[1])}if(x=='pfin'){const q=String(b.dataset.i).split('§');return partDone(q[0],q[1])}if(x=='pout')return purOut(b.dataset.i);if(x=='pback')return purBack(b.dataset.i);if(x=='pundo')return purUndo(b.dataset.i);if(x=='xm'){XM=b.dataset.i;return draw()}if(x=='xpm'){XP=b.dataset.i;return draw()}if(x=='xexp')return xExport();if(x=='ptab'){PT=b.dataset.i;SV=null;return draw()}if(x=='mtab'){MT=b.dataset.i;return draw()}if(x=='sv'){SV=b.dataset.i;if(isPur())PT='a';else tab='s';draw();return window.scrollTo(0,0)}if(x=='svb'){SV=null;return draw()}if(x=='svp')return printStm();if(x=='svx')return stmExport();
+ if(x=='part')return partOrder(a);if(x=='pcan'){const q=String(b.dataset.i).split('§');return partCancel(q[0],q[1])}if(x=='pfin'){const q=String(b.dataset.i).split('§');return partDone(q[0],q[1])}if(x=='pout')return purOut(b.dataset.i);if(x=='pback')return purBack(b.dataset.i);if(x=='pundo')return purUndo(b.dataset.i);if(x=='xm'){XM=b.dataset.i;return draw()}if(x=='xpm'){XP=b.dataset.i;return draw()}if(x=='xexp')return xExport();if(x=='ptab'){PT=b.dataset.i;SV=null;return draw()}if(x=='mtab'){MT=b.dataset.i;return draw()}if(x=='sv'){SV=b.dataset.i;if(isPur())PT='a';else tab='s';draw();return window.scrollTo(0,0)}if(x=='svb'){SV=null;return draw()}if(x=='svp')return printStm();if(x=='svx')return stmExport();if(x=='svd')return delVendor(b.dataset.i||SV);if(x=='svda')return delAllVendors();if(x=='oclr')return wipeOrders();
  if(x=='mfin')return fin([...document.querySelectorAll('.mk:checked')].map(e=>A.find(y=>y.id==e.value)).filter(Boolean));
  if(x=='imp')return imp();
  if(x=='assign'||x=='send'){
@@ -2343,4 +2391,20 @@ setInterval(()=>{if(!on())armed=false;else if(!armed)arm()},3000);
 @media(max-width:860px){
 #lk.sp[data-m="l"],#lk.sp[data-m="n"]{background:var(--lkbg) center calc(26px + env(safe-area-inset-top,0px))/min(30vw,130px) no-repeat,linear-gradient(180deg,#2a86ea 0%,#0b43a3 45%,#03225c 100%)}
 }
+/* === Header: White Minimal (اللوجو أسود، رقم الإذن في كبسولة، رأس جدول خفيف) === */
+#pr .pg .ph,#pr .pg.en .ph{background:#fff;color:#161618;display:flex;align-items:center;justify-content:flex-start;gap:12px;padding:0 14px;height:36px;border-bottom:1.5px solid #161618}
+#pr .pg:not(.en) .ph{height:44px}
+#pr .pg .ph img,#pr .pg.en .ph img{height:20px;width:auto;filter:brightness(0)}
+#pr .pg:not(.en) .ph img{height:24px}
+#pr .pg .ph div,#pr .pg.en .ph div,#pr .en .ph div{display:contents}
+#pr .pg .ph small,#pr .pg.en .ph small{display:block;flex:1;text-align:center;color:#4a5260;font-size:10px;font-weight:600;letter-spacing:0;white-space:nowrap}
+#pr .pg.en .ph small{letter-spacing:.24em;text-transform:uppercase}
+#pr .pg .ph b,#pr .pg.en .ph b{display:block;font-size:12px;line-height:1.2;font-weight:700;color:#161618;border:1.5px solid #161618;border-radius:999px;padding:2px 12px;white-space:nowrap;max-width:45%;overflow:hidden;text-overflow:ellipsis}
+#pr .pg.en .ph b::before{content:"\2116 "}
+#pr .pg table th{background:#f1f3f6;color:#4a5260;font-weight:700;text-transform:uppercase;letter-spacing:.06em;border-bottom:1.5px solid #161618}
+#pr .pg:not(.en) table th{letter-spacing:0;text-transform:none}
+#pr .pg table tr.tt th{background:#fff;color:#161618;border-top:1.5px solid #161618;border-bottom:0;text-transform:none;letter-spacing:0}
+#pr .pg.en tr:nth-child(even) td{background:none}
+#pr .pg .ph .hn{white-space:nowrap;font-size:11px;font-weight:600;color:#161618;letter-spacing:.16em;text-transform:uppercase;line-height:20px;padding-inline-start:12px;border-inline-start:1.5px solid #9aa0a8}
+#pr .pg .ph .hn{white-space:nowrap;font-size:11px;font-weight:600;color:#161618;letter-spacing:.16em;text-transform:uppercase;line-height:20px;padding-inline-start:12px;border-inline-start:1.5px solid #9aa0a8}
 </style></body></html>
